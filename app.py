@@ -33,7 +33,7 @@ div[data-testid="stMetric"] {{ background: #F8FAFC; border: 1px solid #E2E8F0; b
 
 st.markdown("""<div class="hero"><h1>⚡ Despacho de Energia da Fábrica</h1>
 <p>Que horas ligar cada máquina, quando usar a bateria e quanto isso economiza na conta de luz</p>
-<p style="color:#CBD5E1;font-size:.95rem;margin-top:14px">Caio Gadotti · Projeto da faculdade · ESCF, Engenharia de Sistemas Ciberfísicos · PUC-SP</p></div>""",
+<p style="color:#CBD5E1;font-size:.95rem;margin-top:14px">Caio Gadotti · Projeto pessoal</p></div>""",
             unsafe_allow_html=True)
 
 
@@ -79,7 +79,7 @@ Demanda: R$ {t_sel.demanda:.0f}/kW·mês
 Injeção de solar: R$ {t_sel.exportacao:.2f}/kWh""")
     st.caption("Valores ilustrativos, na ordem de grandeza das tarifas de distribuidoras paulistas.")
     st.divider()
-    st.markdown("**Caio Gadotti**  \nProjeto da faculdade · ESCF (Engenharia de Sistemas Ciberfísicos), PUC-SP")
+    st.markdown("**Caio Gadotti**  \nProjeto pessoal")
 
 COLS = {"nome": "Carga", "potencia": "Potência (kW)", "duracao": "Duração (h)", "janela_ini": "Pode começar às",
         "janela_fim": "Termina até", "inicio_atual": "Hoje liga às"}
