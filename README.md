@@ -128,12 +128,6 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-### Publicar no Streamlit Community Cloud
-
-1. Entre em [share.streamlit.io](https://share.streamlit.io) com a conta do GitHub.
-2. Clique em **Create app** e escolha este repositório, branch `main`, arquivo `app.py`.
-3. Clique em **Deploy**. O tema claro vem de `.streamlit/config.toml`.
-
 ## Estrutura
 
 ```
