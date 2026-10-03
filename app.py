@@ -12,7 +12,7 @@ import streamlit as st
 import otimizador as o
 
 TEAL, AMB, DARK, RED, GRAY, SUN, BLUE = "#0F766E", "#F59E0B", "#0B2E2B", "#DC2626", "#94A3B8", "#FACC15", "#2563EB"
-st.set_page_config(page_title="Despacho de Energia", page_icon="⚡", layout="wide")
+st.set_page_config(page_title="Despacho de Energia", page_icon=str(Path(__file__).parent / "icone.png"), layout="wide")
 
 st.markdown(f"""
 <style>
