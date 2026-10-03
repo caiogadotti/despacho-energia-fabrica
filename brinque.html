@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#0F766E;--amb:#F59E0B;--dark:#0B2E2B;--red:#DC2626;--gray:#94A3B8;--sun:#FACC15;--ink:#1E293B;--soft:#E6F2F1}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,sans-serif;color:var(--ink);background:#fff;user-select:none}
+.top{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.kpi{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px 14px}
+.kpi small{color:#64748B;font-size:.8rem}.kpi b{display:block;font-size:1.6rem;font-weight:600;margin-top:2px}
+.kpi.score{background:var(--dark);color:#fff;border:none}.kpi.score small{color:#99F6E4}.kpi.score b{color:var(--amb);font-family:'Instrument Serif',serif;font-size:2rem;font-weight:400}
+.bar{height:8px;background:#ffffff22;border-radius:9px;margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--amb);width:0;transition:width .25s}
+.wrap{position:relative}
+canvas{display:block;width:100%}
+.rows{position:relative;margin-top:6px}
+.row{position:relative;height:38px;border-bottom:1px solid #F1F5F9}
+.lab{position:absolute;left:0;top:0;width:170px;height:38px;display:flex;align-items:center;font-size:.86rem;font-weight:600;padding-right:8px}
+.lab span{font-weight:400;color:#64748B;margin-left:6px;font-size:.78rem}
+.track{position:absolute;left:170px;right:0;top:4px;height:30px}
+.win{position:absolute;top:0;height:30px;background:var(--soft);border-radius:8px}
+.ghost{position:absolute;z-index:2;top:9px;height:12px;border:2px dashed var(--red);border-radius:6px;opacity:.55}
+.blk{position:absolute;z-index:3;top:2px;height:26px;border-radius:7px;background:var(--teal);color:#fff;font-size:.75rem;display:flex;align-items:center;justify-content:center;cursor:grab;box-shadow:0 2px 6px #0003;touch-action:none;transition:left .12s}
+.blk.drag{cursor:grabbing;background:var(--dark);transition:none;z-index:5}
+.blk.peak{background:var(--red)}
+.ponta{position:absolute;top:0;bottom:0;background:#DC26261f;pointer-events:none;z-index:2;border-radius:4px}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+button{font-family:Inter;border:1px solid #CBD5E1;background:#fff;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer}
+button.pri{background:var(--teal);color:#fff;border-color:var(--teal)}
+.msg{margin-left:auto;font-size:.9rem;color:#475569}
+.hint{font-size:.85rem;color:#475569;background:#FFF7ED;border-radius:10px;padding:8px 12px;margin-bottom:10px}
+@media (max-width:700px){.top{grid-template-columns:1fr 1fr}.lab{width:110px;font-size:.75rem}.track{left:110px}}
+</style></head><body>
+<div class="hint">🎮 <b>Arraste as cargas</b> pela linha do tempo. A faixa verde-clara é onde cada uma pode rodar e o contorno vermelho tracejado é o horário de hoje. Tente bater o otimizador.</div>
+<div class="top">
+  <div class="kpi"><small>Seu custo do dia</small><b id="k1">—</b></div>
+  <div class="kpi"><small>Pico de demanda</small><b id="k2">—</b></div>
+  <div class="kpi"><small>Economia contra hoje</small><b id="k3">—</b></div>
+  <div class="kpi score"><small id="ks">Quanto você chegou do ótimo</small><b id="k4">0%</b><div class="bar"><i id="kb"></i></div></div>
+</div>
+<div class="wrap"><canvas id="cv" height="210"></canvas></div>
+<div class="rows" id="rows"></div>
+<div class="btns"><button id="b1">↺ Voltar ao horário de hoje</button><button id="b2" class="pri">💡 Mostrar a solução do otimizador</button><span class="msg" id="msg"></span></div>
+<script>
+const D = __DADOS__;
+const T = 24, ini = {};
+D.cargas.forEach(c => ini[c.nome] = c.atual);
+let pos = {...ini};
+const brl = v => "R$ " + Math.round(v).toLocaleString("pt-BR");
+function perfil(p){const f=new Array(T).fill(0);D.cargas.forEach(c=>{for(let h=p[c.nome];h<p[c.nome]+c.duracao;h++)f[h]+=c.potencia});return f}
+function custo(p){const f=perfil(p);let e=0,pk=0,ex=0;const rede=[];for(let h=0;h<T;h++){const l=D.base[h]+f[h]-D.solar[h];const r=Math.max(l,0);rede.push(r);e+=D.preco[h]*r;ex+=Math.max(-l,0);pk=Math.max(pk,r)}
+ return {total:e+D.demanda_dia*pk-D.exportacao*ex,pico:pk,rede,f}}
+const cHoje=custo(ini).total, cOt=custo(D.otimo).total;
+const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
+function desenha(r){
+ const W=cv.clientWidth,H=210;cv.width=W*devicePixelRatio;cv.height=H*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+ const L=document.querySelector(".lab")?document.querySelector(".lab").offsetWidth:170, cw=(W-L)/T;
+ const tot=r.f.map((v,h)=>v+D.base[h]); const hoje=custo(ini); const totH=hoje.f.map((v,h)=>v+D.base[h]);
+ const mx=Math.max(...tot,...totH,...D.solar)*1.1, y=v=>H-24-(H-34)*v/mx;
+ ctx.clearRect(0,0,W,H);
+ D.ponta.forEach(h=>{ctx.fillStyle="#DC262614";ctx.fillRect(L+h*cw,0,cw,H-24)});
+ ctx.fillStyle="#64748B";ctx.font="11px Inter";ctx.fillText("kW",4,12);
+ for(let h=0;h<T;h+=2){ctx.fillText(h+"h",L+h*cw+2,H-8)}
+ ctx.fillText(Math.round(mx/1.1)+" kW",4,y(mx/1.1)+4);
+ // solar
+ ctx.fillStyle="#FACC1566";ctx.beginPath();ctx.moveTo(L,y(0));D.solar.forEach((s,h)=>{ctx.lineTo(L+h*cw,y(s));ctx.lineTo(L+(h+1)*cw,y(s))});ctx.lineTo(L+T*cw,y(0));ctx.fill();
+ // barras de consumo
+ tot.forEach((v,h)=>{ctx.fillStyle=D.ponta.includes(h)?"#DC2626":"#0F766E";ctx.globalAlpha=.85;ctx.fillRect(L+h*cw+2,y(v),cw-4,y(0)-y(v))});ctx.globalAlpha=1;
+ // hoje
+ ctx.strokeStyle="#DC2626";ctx.setLineDash([4,3]);ctx.lineWidth=1.5;ctx.beginPath();totH.forEach((v,h)=>{ctx.lineTo(L+h*cw,y(v));ctx.lineTo(L+(h+1)*cw,y(v))});ctx.stroke();ctx.setLineDash([]);
+ // pico
+ ctx.strokeStyle="#F59E0B";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(L,y(r.pico+0));ctx.lineTo(W,y(r.pico));ctx.stroke();
+ ctx.fillStyle="#B45309";ctx.fillText("pico pago na demanda: "+Math.round(r.pico)+" kW",W-190,y(r.pico)-5);
+ ctx.fillStyle="#475569";ctx.fillText("■ consumo  ▬ ponta  ☀ solar  - - hoje",L+4,12);
+}
+const rows=document.getElementById("rows");
+D.cargas.forEach(c=>{
+ const row=document.createElement("div");row.className="row";
+ row.innerHTML=`<div class="lab">${c.nome}<span>${c.potencia} kW · ${c.duracao} h</span></div><div class="track"></div>`;
+ const tr=row.querySelector(".track");
+ D.ponta.forEach(h=>{const p=document.createElement("div");p.className="ponta";p.style.left=(h/T*100)+"%";p.style.width=(100/T)+"%";tr.appendChild(p)});
+ const w=document.createElement("div");w.className="win";w.style.left=(c.ini/T*100)+"%";w.style.width=((c.fim-c.ini)/T*100)+"%";tr.appendChild(w);
+ const g=document.createElement("div");g.className="ghost";g.style.left=(c.atual/T*100)+"%";g.style.width=(c.duracao/T*100)+"%";tr.appendChild(g);
+ const b=document.createElement("div");b.className="blk";b.textContent=`${pos[c.nome]}h–${pos[c.nome]+c.duracao}h`;b.style.width=(c.duracao/T*100)+"%";tr.appendChild(b);
+ c.el=b;
+ let x0,s0;
+ b.addEventListener("pointerdown",e=>{b.setPointerCapture(e.pointerId);b.classList.add("drag");x0=e.clientX;s0=pos[c.nome]});
+ b.addEventListener("pointermove",e=>{if(!b.classList.contains("drag"))return;const dh=Math.round((e.clientX-x0)/(tr.clientWidth/T));
+   const s=Math.min(Math.max(s0+dh,c.ini),c.fim-c.duracao);if(s!==pos[c.nome]){pos[c.nome]=s;atualiza()}});
+ b.addEventListener("pointerup",()=>b.classList.remove("drag"));
+ rows.appendChild(row);
+});
+function atualiza(){
+ const r=custo(pos);
+ D.cargas.forEach(c=>{const s=pos[c.nome];c.el.style.left=(s/T*100)+"%";c.el.textContent=`${s}h–${s+c.duracao}h`;
+   let naPonta=false;for(let h=s;h<s+c.duracao;h++)if(D.ponta.includes(h))naPonta=true;c.el.classList.toggle("peak",naPonta)});
+ document.getElementById("k1").textContent=brl(r.total);
+ document.getElementById("k2").textContent=Math.round(r.pico)+" kW";
+ const eco=cHoje-r.total;document.getElementById("k3").textContent=(eco>=0?"":"−")+brl(Math.abs(eco))+"/dia";
+ const sc=Math.max(0,Math.min(100,100*(cHoje-r.total)/(cHoje-cOt)));
+ document.getElementById("k4").textContent=Math.round(sc)+"%";document.getElementById("kb").style.width=sc+"%";
+ const m=document.getElementById("msg");
+ m.textContent= r.total<=cOt+0.5?"🏆 Você empatou com o otimizador!": sc>90?"🔥 Quase lá: falta "+brl(r.total-cOt)+"/dia": sc>50?"Bom caminho. Olhe o pico (linha amarela)." : "Dica: tire as cargas da faixa vermelha e cuidado com o pico.";
+ desenha(r);
+}
+document.getElementById("b1").onclick=()=>{pos={...ini};atualiza()};
+document.getElementById("b2").onclick=()=>{pos={...D.otimo};atualiza()};
+window.addEventListener("resize",()=>desenha(custo(pos)));
+atualiza();
+</script></body></html>

@@ -22,6 +22,8 @@ telhado, com tarifa horária e cobrança por pico de demanda.
 
 ![Painel com o despacho otimizado da fábrica](docs/preview.png)
 
+![Aba Brinque: arraste as cargas e tente bater o otimizador](docs/brinque.png)
+
 ---
 
 ## O problema
@@ -61,6 +63,7 @@ igual nos dois sentidos, tarifas ilustrativas na ordem de grandeza das distribui
 
 | Aba | Pergunta | Resultado com a fábrica padrão |
 |---|---|---|
+| Brinque | Arrastar as cargas na linha do tempo e tentar bater o otimizador | o custo, o pico e a nota mudam na hora, no navegador |
 | Despacho | Quanto custa o dia e de onde vem a energia em cada hora? | de R$ 3.329 para R$ 2.128 por dia (−36%); pico de 325 kW para 150 kW |
 | Horários das cargas | Que horas ligar cada carga? | todas saem da ponta; mudar só os horários já entrega 69% da economia, sem investimento |
 | Incerteza do sol | E se o sol não vier como previsto? | o plano da véspera ganhou de operar como hoje em 100% de 150 dias sorteados; valor da previsão perfeita: R$ 18/dia |
@@ -134,7 +137,8 @@ streamlit run app.py
 ## Estrutura
 
 ```
-app.py                  painel Streamlit (cinco abas)
+app.py                  painel Streamlit (seis abas)
+brinque.html            jogo da aba Brinque (JavaScript, roda no navegador)
 otimizador.py           MILP do despacho, sorteio solar, simulação de execução e finanças
 tests/test_otimizador.py
 .streamlit/config.toml  tema visual

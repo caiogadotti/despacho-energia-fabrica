@@ -1,5 +1,7 @@
 import itertools
+import json
 import time
+from pathlib import Path
 from dataclasses import replace
 
 import numpy as np
@@ -127,10 +129,23 @@ cen = montar(*args)
 with st.spinner("Otimizando o dia..."):
     atual, so_cargas, otimo = resolver(*args)
 
-tabs = st.tabs(["⚡ Despacho", "🗓️ Horários das cargas", "☀️ Incerteza do sol", "💰 Vale comprar a bateria?", "✅ Validação"])
+tabs = st.tabs(["🎮 Brinque", "⚡ Despacho", "🗓️ Horários das cargas", "☀️ Incerteza do sol", "💰 Vale comprar a bateria?", "✅ Validação"])
+
+# ---------------------------------------------------------------- brinque
+with tabs[0]:
+    st.markdown("### Você contra o otimizador")
+    st.caption("Sem bateria, só mudando horários. Tudo roda no seu navegador: arraste e veja a conta mudar na hora. "
+               "A tarifa, o solar e as cargas vêm da barra lateral e da tabela de cargas.")
+    dados = {"base": list(cen.base), "solar": list(cen.solar), "preco": list(cen.tarifa.preco),
+             "demanda_dia": cen.tarifa.demanda_dia, "exportacao": cen.tarifa.exportacao, "ponta": list(cen.tarifa.ponta),
+             "cargas": [{"nome": c.nome, "potencia": c.potencia, "duracao": c.duracao, "ini": c.janela_ini,
+                         "fim": c.janela_fim, "atual": c.inicio_atual} for c in cargas],
+             "otimo": so_cargas.inicios}
+    html = (Path(__file__).parent / "brinque.html").read_text(encoding="utf-8").replace("__DADOS__", json.dumps(dados))
+    st.iframe(html, height=380 + 40 * len(cargas) + 70)
 
 # ---------------------------------------------------------------- despacho
-with tabs[0]:
+with tabs[1]:
     eco = atual.custo - otimo.custo
     c = st.columns(4)
     c[0].metric("Custo do dia hoje", brl(atual.custo))
@@ -188,7 +203,7 @@ with tabs[0]:
                     unsafe_allow_html=True)
 
 # ---------------------------------------------------------------- cargas
-with tabs[1]:
+with tabs[2]:
     st.markdown("### Que horas ligar cada carga")
     st.markdown('<div class="box">Cada barra é uma carga ligada. A faixa clara mostra a <b>janela</b> em que ela pode rodar. '
                 'O otimizador escolhe o horário dentro da janela olhando três coisas ao mesmo tempo: tarifa da hora, '
@@ -224,7 +239,7 @@ with tabs[1]:
                 'as que cabem para o meio do dia, onde o sol paga a energia.</div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------------- incerteza solar
-with tabs[2]:
+with tabs[3]:
     st.markdown("### E se o sol não vier como previsto?")
     st.markdown('<div class="box">O plano é feito na véspera com a geração <b>esperada</b>. No dia, passa nuvem. '
                 'Aqui sorteamos centenas de dias de sol (fator do dia ~ <b>Beta</b>, ruído horário ~ <b>lognormal</b>), '
@@ -273,7 +288,7 @@ with tabs[2]:
         st.info("Sem solar instalado não há incerteza: os três custos não variam de um dia para o outro.")
 
 # ---------------------------------------------------------------- viabilidade
-with tabs[3]:
+with tabs[4]:
     st.markdown("### Vale comprar a bateria?")
     st.markdown('<div class="box">A economia da bateria é medida contra a fábrica já com <b>horários otimizados</b> '
                 '(a melhoria grátis vem primeiro). Para cada tamanho, o fluxo de caixa é: investimento no ano 0, '
@@ -348,7 +363,7 @@ with tabs[3]:
                  width="stretch", hide_index=True)
 
 # ---------------------------------------------------------------- validação
-with tabs[4]:
+with tabs[5]:
     st.markdown("### O otimizador acha mesmo o melhor?")
     st.markdown('<div class="box">Com poucas cargas e sem bateria dá para testar <b>todas</b> as combinações de horário '
                 'e pegar a mais barata, calculando o custo direto, sem passar pelo solver. Se o MILP encontra o mesmo custo, ele está achando o ótimo. Com 6 cargas a força '

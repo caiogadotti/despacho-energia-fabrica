@@ -22,6 +22,8 @@ time-of-use tariff with a peak demand charge.
 
 ![Dashboard with the factory's optimized dispatch](docs/preview.png)
 
+![Play tab: drag the loads and try to beat the optimizer](docs/brinque.png)
+
 > The interface is in Portuguese. Main terms: *rede* = grid, *ponta* = peak hours,
 > *demanda* = demand charge, *carga* = load, *bateria* = battery.
 
@@ -64,6 +66,7 @@ both directions, and illustrative tariffs in the range of São Paulo utilities.
 
 | Tab | Question | Result with the default factory |
 |---|---|---|
+| Brinque (play) | Drag the loads along the timeline and try to beat the optimizer | cost, peak and score update instantly, in the browser |
 | Despacho (dispatch) | What does the day cost and where does each hour's energy come from? | from R$ 3,329 to R$ 2,128 per day (−36%); peak from 325 kW to 150 kW |
 | Horários das cargas (load schedule) | When should each load run? | every load leaves peak hours; rescheduling alone delivers 69% of the savings, with no investment |
 | Incerteza do sol (solar uncertainty) | What if the sun doesn't show up as forecast? | the day-ahead plan beat current operation on 100% of 150 sampled days; value of perfect information: R$ 18/day |
@@ -137,7 +140,8 @@ streamlit run app.py
 ## Layout
 
 ```
-app.py                  Streamlit dashboard (five tabs)
+app.py                  Streamlit dashboard (six tabs)
+brinque.html            Play tab game (JavaScript, runs in the browser)
 otimizador.py           dispatch MILP, solar sampling, execution simulation and finance
 tests/test_otimizador.py
 .streamlit/config.toml  visual theme
