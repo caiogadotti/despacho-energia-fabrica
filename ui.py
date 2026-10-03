@@ -40,7 +40,6 @@ div[data-testid="stMetric"] {{ background: #fff; border: 1px solid var(--line); 
 div[data-testid="stMetricValue"] {{ font-variant-numeric: tabular-nums; font-weight: 600; }}
 div[data-testid="stMetricLabel"] p {{ color: var(--muted); font-weight: 500; }}
 .stTabs [data-baseweb="tab-list"] {{ gap: 2px; border-bottom: 1px solid var(--line); }}
-@media (min-width: 761px) {{ .stTabs [data-baseweb="tab-list"] {{ flex-wrap: wrap; }} }}
 .stTabs [data-baseweb="tab"] {{ font-size: .98rem; padding: 10px 14px; min-height: 44px; }}
 div[data-testid="stExpander"] details {{ border-radius: 12px; border-color: var(--line); }}
 div[data-testid="stExpander"] summary p {{ font-weight: 600; }}
