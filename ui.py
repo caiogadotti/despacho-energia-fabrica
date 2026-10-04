@@ -1,6 +1,8 @@
 """Identidade visual e componentes de texto compartilhados pelos painéis."""
 from __future__ import annotations
 
+import re
+
 import plotly.graph_objects as go
 import plotly.io as pio
 import streamlit as st
@@ -64,8 +66,34 @@ section[data-testid="stSidebar"] .stMarkdown p {{ line-height: 1.55; }}
   .glossario td:nth-child(2) {{ display: none; }}
 }}
 @media (prefers-reduced-motion: reduce) {{ * {{ transition: none !important; animation: none !important; }} }}
+.hero .rodape-hero {{ display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; margin-top: 16px; }}
+.hero .rodape-hero .autor {{ margin: 0; }}
+.hero .links {{ display: flex; gap: 8px; flex-wrap: wrap; }}
+.hero a.hlink {{ position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 6px; min-height: 40px;
+  padding: 8px 16px; border-radius: 10px; border: 1px solid #5EEAD4; color: #CCFBF1 !important; text-decoration: none !important;
+  font-weight: 600; font-size: .9rem; isolation: isolate; transition: color .2s ease; }}
+.hero a.hlink::before {{ content: ""; position: absolute; inset: 0; background: #5EEAD4; transform: translateX(-101%);
+  transition: transform .25s ease-out; z-index: -1; }}
+.hero a.hlink:hover {{ color: #0B2E2B !important; }} .hero a.hlink:hover::before {{ transform: translateX(0); }}
+.hero a.hlink:focus-visible {{ outline: 3px solid #FCD34D; outline-offset: 2px; }}
+.hero a.hlink span {{ transition: transform .2s ease; }} .hero a.hlink:hover span {{ transform: translate(2px,-2px); }}
+/* U2: carregamento discreto na cor do projeto */
+[data-testid="stSpinner"] {{ color: var(--muted); font-size: .92rem; }}
+[data-testid="stSpinner"] i, [data-testid="stSpinner"] svg {{ border-color: #D5E8E5 !important; border-top-color: var(--teal) !important; color: var(--teal) !important; }}
+/* U1 para botões nativos */
+.stButton > button, .stLinkButton > a {{ border-radius: 10px; font-weight: 600; min-height: 44px; transition: background .2s, color .2s, transform .1s; }}
+.stButton > button:active {{ transform: scale(.97); }}
+@media (prefers-reduced-motion: reduce) {{ .hero a.hlink::before {{ transition: none; }} }}
 </style>
 """
+
+
+_DEC = re.compile(r"(?<![\w.#])(\d+)\.(\d{1,2}|\d{4,})(?![\d.])")
+
+
+def br(texto) -> str:
+    """Decimal com vírgula; ponto seguido de 3 dígitos fica (é milhar, como em 6.006)."""
+    return _DEC.sub(r"\1,\2", str(texto))
 
 
 def _html(h: str):
@@ -75,6 +103,14 @@ def _html(h: str):
 
 def aplicar():
     st.markdown(CSS, unsafe_allow_html=True)
+    from streamlit.delta_generator import DeltaGenerator
+    if not getattr(DeltaGenerator.metric, "_br", False):
+        original = DeltaGenerator.metric
+
+        def metric(self, label, value, delta=None, *a, **kw):
+            return original(self, label, br(value), br(delta) if isinstance(delta, str) else delta, *a, **kw)
+        metric._br = True
+        DeltaGenerator.metric = metric
     tpl = go.layout.Template()
     tpl.layout = go.Layout(
         font=dict(family="Inter, sans-serif", color=INK, size=13),
@@ -93,10 +129,14 @@ def aplicar():
     pio.templates.default = "painel"
 
 
-def hero(kicker: str, titulo: str, texto: str, chips: list[tuple[str, str]], autor: str):
+def hero(kicker: str, titulo: str, texto: str, chips: list[tuple[str, str]], autor: str,
+         links: list[tuple[str, str]] | None = None):
     c = "".join(f'<span class="chip">{rot} <b>{val}</b></span>' for rot, val in chips)
+    l = "".join(f'<a class="hlink" href="{url}" target="_blank" rel="noopener">{rot}<span aria-hidden="true">↗</span></a>'
+                for rot, url in (links or []))
     _html(f'<div class="hero"><div class="k">{kicker}</div><h1>{titulo}</h1><p>{texto}</p>'
-                f'<div class="chips">{c}</div><div class="autor">{autor}</div></div>')
+          f'<div class="chips">{c}</div><div class="rodape-hero"><span class="autor">{autor}</span>'
+          f'<span class="links">{l}</span></div></div>')
 
 
 def escopo(problema: str, dentro: list[str], fora: list[str], titulo="Sobre o projeto: problema, escopo e limites"):
@@ -132,4 +172,4 @@ def dica(texto: str):
 
 
 def resultado(num: str, texto: str):
-    _html(f'<div class="result"><div class="num">{num}</div>{texto}</div>')
+    _html(f'<div class="result"><div class="num">{br(num)}</div>{br(texto)}</div>')

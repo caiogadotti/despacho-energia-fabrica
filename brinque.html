@@ -28,6 +28,23 @@ button.pri{background:var(--teal);color:#fff;border-color:var(--teal)}
 .msg{margin-left:auto;font-size:.9rem;color:#475569}
 .hint{font-size:.85rem;color:#475569;background:#FFF7ED;border-radius:10px;padding:8px 12px;margin-bottom:10px}
 @media (max-width:700px){.top{grid-template-columns:1fr 1fr}.lab{width:110px;font-size:.75rem}.track{left:110px}}
+/* U1: botão com preenchimento no hover e resposta ao clique */
+button{position:relative;overflow:hidden;isolation:isolate;min-height:40px;border-radius:10px;border:1px solid #0F766E;color:#0F766E;background:#fff;
+  font-weight:600;cursor:pointer;transition:color .2s ease,transform .1s ease,box-shadow .2s ease}
+button::before{content:"";position:absolute;inset:0;background:#0F766E;transform:translateY(101%);transition:transform .22s ease-out;z-index:-1}
+button:hover{color:#fff;box-shadow:0 4px 12px #0F766E33}button:hover::before{transform:translateY(0)}
+button:active{transform:scale(.96)}button:focus-visible{outline:3px solid #F59E0B;outline-offset:2px}
+button.pri,button.on{background:#0F766E;color:#fff}button.pri::before,button.on::before{background:#0B2E2B}
+button.perigo{border-color:#DC2626;color:#B91C1C}button.perigo::before{background:#DC2626}button.perigo:hover{color:#fff;box-shadow:0 4px 12px #DC262633}
+/* U3: caixas de marcar viram chave liga/desliga */
+input[type=checkbox]{appearance:none;-webkit-appearance:none;width:40px;height:22px;border-radius:999px;background:#CBD5E1;position:relative;
+  cursor:pointer;flex:none;vertical-align:middle;transition:background .2s ease;margin:0 8px 0 0}
+input[type=checkbox]::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;
+  box-shadow:0 1px 3px #0003;transition:transform .2s ease}
+input[type=checkbox]:checked{background:#0F766E}input[type=checkbox]:checked::after{transform:translateX(18px)}
+input[type=checkbox]:focus-visible{outline:3px solid #F59E0B;outline-offset:2px}
+label:has(input[type=checkbox]){display:flex;align-items:center;cursor:pointer;min-height:32px}
+@media (prefers-reduced-motion:reduce){button,button::before,input[type=checkbox],input[type=checkbox]::after{transition:none}}
 </style></head><body>
 <div class="hint">🎮 <b>Arraste as cargas</b> pela linha do tempo. A faixa verde-clara é onde cada uma pode rodar e o contorno vermelho tracejado é o horário de hoje. Tente bater o otimizador.</div>
 <div class="top">

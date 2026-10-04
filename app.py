@@ -24,7 +24,9 @@ ui.hero("Otimização · eficiência energética",
         "sair o mais barato possível numa tarifa em que o kWh das 18 h às 21 h custa cinco vezes mais e o maior pico do "
         "mês vira cobrança fixa.",
         [("custo do dia", "−36%"), ("pico", "325 → 150 kW"), ("só mudando horários", "69% da economia"), ("solver", "MILP · 14 ms")],
-        "Caio Gadotti · Projeto pessoal")
+        "Caio Gadotti · Projeto pessoal",
+        links=[("Código no GitHub", "https://github.com/caiogadotti/despacho-energia-fabrica"),
+               ("Como funciona (README)", "https://github.com/caiogadotti/despacho-energia-fabrica#readme")])
 ui.escopo(
     "Na tarifa horo-sazonal da indústria, a mesma energia custa muito mais no horário de ponta, e a conta ainda cobra "
     "pela demanda: o maior consumo do mês, em kW, mesmo que tenha durado uma hora. Muita carga de fábrica não precisa "
@@ -69,18 +71,19 @@ with st.sidebar:
     st.markdown("**Bateria**")
     bat_e = st.slider("Capacidade (kWh)", 0, 800, 200, 25, help="Energia que a bateria guarda. 0 = sem bateria.")
     bat_p = st.slider("Potência (kW)", 0, 400, 100, 10, help="Maior potência de carga ou descarga em cada hora.")
-    bat_eta = st.slider("Eficiência por sentido", 0.80, 0.99, 0.95, 0.01,
-                        help="Fração que sobra a cada passagem. Ida e volta = eficiência².")
+    bat_eta = st.slider("Eficiência por sentido (%)", 80, 99, 95, 1,
+                        help="Fração que sobra a cada passagem. Ida e volta = eficiência²: 95% vira 90%.") / 100
     dias = st.number_input("Dias de operação por ano", 100, 365, 264, help="22 dias úteis × 12 meses")
     st.divider()
     t_sel = o.TARIFAS[nome_tarifa]
     st.markdown("**Tarifa escolhida**")
+    reais = lambda v, d=2: f"R&#36;&nbsp;{v:.{d}f}".replace(".", ",")
     st.markdown(
-        f'<table class="glossario">'
-        f'<tr><td>Fora de ponta</td><td></td><td>R&#36; {t_sel.preco.min():.2f}/kWh</td></tr>'
-        f'<tr><td>Ponta</td><td></td><td>R&#36; {t_sel.preco.max():.2f}/kWh</td></tr>'
-        f'<tr><td>Demanda</td><td></td><td>R&#36; {t_sel.demanda:.0f}/kW·mês</td></tr>'
-        f'<tr><td>Injeção de solar</td><td></td><td>R&#36; {t_sel.exportacao:.2f}/kWh</td></tr></table>',
+        "<div style='font-size:.92rem;line-height:1.9;font-variant-numeric:tabular-nums'>"
+        f"Fora de ponta <b style='float:right'>{reais(t_sel.preco.min())}/kWh</b><br>"
+        f"Ponta <b style='float:right'>{reais(t_sel.preco.max())}/kWh</b><br>"
+        f"Demanda <b style='float:right'>{reais(t_sel.demanda, 0)}/kW·mês</b><br>"
+        f"Injeção de solar <b style='float:right'>{reais(t_sel.exportacao)}/kWh</b></div>",
         unsafe_allow_html=True)
     st.caption("Valores ilustrativos, na ordem de grandeza das tarifas de distribuidoras paulistas.")
     st.divider()
