@@ -20,9 +20,9 @@ time-of-use tariff with a peak demand charge.
 
 </div>
 
-![Dashboard with the factory's optimized dispatch](docs/preview.png)
+![Dragging loads out of peak hours until matching the optimizer](docs/demo.gif)
 
-![Play tab: drag the loads and try to beat the optimizer](docs/brinque.png)
+![Dashboard with the factory's optimized dispatch](docs/preview.png)
 
 > The interface is in Portuguese. Main terms: *rede* = grid, *ponta* = peak hours,
 > *demanda* = demand charge, *carga* = load, *bateria* = battery.

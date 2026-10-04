@@ -20,9 +20,9 @@ telhado, com tarifa horária e cobrança por pico de demanda.
 
 </div>
 
-![Painel com o despacho otimizado da fábrica](docs/preview.png)
+![Arrastando as cargas para fora da ponta até empatar com o otimizador](docs/demo.gif)
 
-![Aba Brinque: arraste as cargas e tente bater o otimizador](docs/brinque.png)
+![Painel com o despacho otimizado da fábrica](docs/preview.png)
 
 ---
 
