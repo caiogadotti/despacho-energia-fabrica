@@ -26,6 +26,10 @@ telhado, com tarifa horária e cobrança por pico de demanda.
 
 ---
 
+## De onde veio
+
+Junta duas coisas do meu dia a dia: os sistemas de produção que desenvolvo na Descartee, numa fábrica com turnos e máquinas que podem mudar de horário, e a otimização, probabilidade e finanças que estudo em Engenharia de Sistemas Ciberfísicos na PUC-SP. Os números são ilustrativos, não da fábrica.
+
 ## O problema
 
 Na tarifa horo-sazonal da indústria, o kWh no horário de ponta (18 h às 21 h) custa cerca de cinco

@@ -84,6 +84,19 @@ section[data-testid="stSidebar"] .stMarkdown p {{ line-height: 1.55; }}
 .stButton > button, .stLinkButton > a {{ border-radius: 10px; font-weight: 600; min-height: 44px; transition: background .2s, color .2s, transform .1s; }}
 .stButton > button:active {{ transform: scale(.97); }}
 @media (prefers-reduced-motion: reduce) {{ .hero a.hlink::before {{ transition: none; }} }}
+.roteiro {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 4px 0 14px; }}
+.roteiro .exp {{ background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; line-height: 1.5; font-size: .93rem; }}
+.roteiro .exp .n {{ display: inline-flex; width: 26px; height: 26px; border-radius: 50%; background: var(--teal); color: #fff;
+  font-weight: 600; font-size: .85rem; align-items: center; justify-content: center; margin-right: 8px; }}
+.roteiro .exp h5 {{ display: flex; align-items: center; margin: 0 0 8px; font-size: 1rem; font-weight: 600; color: var(--ink); }}
+.roteiro .exp p {{ margin: 0 0 6px; color: var(--muted); }}
+.roteiro .exp p b {{ color: var(--ink); font-weight: 600; }}
+.roteiro .exp .porque {{ color: var(--teal); font-size: .88rem; margin: 8px 0 0; }}
+@media (max-width: 760px) {{ .roteiro {{ grid-template-columns: 1fr; }} }}
+.hero .origem {{ margin-top: 14px; max-width: 72ch; color: #E2E8F0; font-size: .95rem; line-height: 1.55;
+  border-left: 3px solid #5EEAD4; padding: 2px 0 2px 14px; }}
+.hero .origem span {{ display: block; color: #5EEAD4; font-size: .72rem; font-weight: 600; letter-spacing: .12em;
+  text-transform: uppercase; margin-bottom: 2px; }}
 </style>
 """
 
@@ -130,11 +143,12 @@ def aplicar():
 
 
 def hero(kicker: str, titulo: str, texto: str, chips: list[tuple[str, str]], autor: str,
-         links: list[tuple[str, str]] | None = None):
+         links: list[tuple[str, str]] | None = None, origem: str | None = None):
     c = "".join(f'<span class="chip">{rot} <b>{val}</b></span>' for rot, val in chips)
     l = "".join(f'<a class="hlink" href="{url}" target="_blank" rel="noopener">{rot}<span aria-hidden="true">↗</span></a>'
                 for rot, url in (links or []))
-    _html(f'<div class="hero"><div class="k">{kicker}</div><h1>{titulo}</h1><p>{texto}</p>'
+    o = f'<div class="origem"><span>De onde veio</span>{origem}</div>' if origem else ""
+    _html(f'<div class="hero"><div class="k">{kicker}</div><h1>{titulo}</h1><p>{texto}</p>{o}'
           f'<div class="chips">{c}</div><div class="rodape-hero"><span class="autor">{autor}</span>'
           f'<span class="links">{l}</span></div></div>')
 
@@ -173,3 +187,13 @@ def dica(texto: str):
 
 def resultado(num: str, texto: str):
     _html(f'<div class="result"><div class="num">{br(num)}</div>{br(texto)}</div>')
+
+
+def roteiro(experimentos: list[tuple[str, str, str, str]], titulo: str = "Como brincar: três experimentos para começar"):
+    """experimentos = (título, faça, observe, por que importa)."""
+    eyebrow(titulo)
+    cards = "".join(
+        f'<div class="exp"><h5><span class="n">{i}</span>{t}</h5><p><b>Faça:</b> {f}</p>'
+        f'<p><b>Observe:</b> {o}</p><p class="porque">{q}</p></div>'
+        for i, (t, f, o, q) in enumerate(experimentos, start=1))
+    _html(f'<div class="roteiro">{cards}</div>')

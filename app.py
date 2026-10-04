@@ -25,6 +25,7 @@ ui.hero("Otimização · eficiência energética",
         "mês vira cobrança fixa.",
         [("custo do dia", "−36%"), ("pico", "325 → 150 kW"), ("só mudando horários", "69% da economia"), ("solver", "MILP · 14 ms")],
         "Caio Gadotti · Projeto pessoal",
+        origem='Junta duas coisas do meu dia a dia: os sistemas de produção que desenvolvo na Descartee, numa fábrica com turnos e máquinas que podem mudar de horário, e a otimização, probabilidade e finanças que estudo em Engenharia de Sistemas Ciberfísicos na PUC-SP. Os números são ilustrativos, não da fábrica.',
         links=[("Código no GitHub", "https://github.com/caiogadotti/despacho-energia-fabrica"),
                ("Como funciona (README)", "https://github.com/caiogadotti/despacho-energia-fabrica#readme")])
 ui.escopo(
@@ -152,6 +153,20 @@ with tabs[0]:
                              "fim": c.janela_fim, "atual": c.inicio_atual} for c in cargas],
                  "otimo": so_cargas.inicios}
         html = (Path(__file__).parent / "brinque.html").read_text(encoding="utf-8").replace("__DADOS__", json.dumps(dados))
+        ui.roteiro([
+            ("Fuja da ponta",
+             "arraste <b>Carga de empilhadeiras</b> e <b>Bomba de reúso</b> para fora da faixa vermelha (18 h às 21 h).",
+             "o custo do dia cai e a barra de nota sobe.",
+             "Na ponta o kWh custa cerca de 5 vezes mais."),
+            ("Cuidado com o pico",
+             "arraste todas as cargas para a madrugada.",
+             "a linha amarela (pico de demanda) sobe e a economia para de crescer, ou até piora.",
+             "A conta cobra o maior pico do mês. Juntar tudo no mesmo horário sai caro mesmo com o kWh barato."),
+            ("Compare com o otimizador",
+             "clique em <b>Mostrar a solução do otimizador</b>.",
+             "ele espalha as cargas e põe algumas no meio do dia, onde o solar cobre o consumo.",
+             "O MILP pesa tarifa, sol e pico ao mesmo tempo, o que é difícil de fazer de cabeça."),
+        ])
         st.iframe(html, height=380 + 40 * len(cargas) + 70)
         como_ler([
             ("Seu custo do dia", "R$", "Energia comprada × tarifa de cada hora, mais a cota diária da demanda, menos o crédito do solar injetado."),

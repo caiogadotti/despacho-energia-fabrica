@@ -29,6 +29,10 @@ time-of-use tariff with a peak demand charge.
 
 ---
 
+## Where it came from
+
+It brings together two parts of my routine: the production systems I build at Descartee, in a plant with shifts and machines that can move in time, and the optimization, probability and finance I study in Cyber-Physical Systems Engineering at PUC-SP. The numbers are illustrative, not the plant's.
+
 ## The problem
 
 Under Brazil's industrial time-of-use tariff, a kWh during peak hours (6 pm to 9 pm) costs about
